@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "NODE_ENV=development nodemon src/server.ts",
     "build": "tsc -p .",
-    "start": "node dist/server.js"
+    "start": "NODE_ENV=production node dist/server.js"
   },
   "keywords": [],
   "author": "andres.jordan.s@gmail.com",
