@@ -1,10 +1,8 @@
 import app from './app'
 import { connectToDatabaseAtlas, connectToDatabaseLocal } from './services/database.service'
-const PORT: number = Number(process.env.DB_APP_PORT) || 4000
+const PORT: number = Number(process.env.APP_PORT) || 4000
 
-console.log(process.env.NODE_ENV, PORT, 'masuk terupdate 5')
-
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') {
   connectToDatabaseAtlas()
   .then(_ => {
     app.listen(PORT, () => {
@@ -13,7 +11,6 @@ if (process.env.NODE_ENV === 'production') {
   })
   .catch (err => {
     console.log('mongoDB connect error')
-    console.log(err)
   })
 } else {
   connectToDatabaseLocal()
@@ -24,7 +21,6 @@ if (process.env.NODE_ENV === 'production') {
     })
     .catch (err => {
       console.log('mongoDB connect error')
-      console.log(err)
     })
 }
 

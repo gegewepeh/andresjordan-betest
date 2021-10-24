@@ -35,7 +35,7 @@ services:
       - redis
     env_file: .env
     environment: 
-      - NODE_ENV=development
+      - NODE_ENV=production
       - REDIS_URL=redis://redis:6379/0
       - DB_LOCAL_CONN_STRING=mongodb://mongodb:27017/db_andresjordan_betest
     command: ["npm", "run", "dev"]
