@@ -1,0 +1,31 @@
+{
+  "index": 0,
+  "code": 121,
+  "errInfo": {
+      "failingDocumentId": "61714b67847e1ed92b2fa506",
+      "details": {
+          "operatorName": "$jsonSchema",
+          "schemaRulesNotSatisfied": [
+              {
+                  "operatorName": "properties",
+                  "propertiesNotSatisfied": [
+                      {
+                          "propertyName": "identityNumber",
+                          "details": [
+                              {
+                                  "operatorName": "bsonType",
+                                  "specifiedAs": {
+                                      "bsonType": "int"
+                                  },
+                                  "reason": "type did not match",
+                                  "consideredValue": "123",
+                                  "consideredType": "string"
+                              }
+                          ]
+                      }
+                  ]
+              }
+          ]
+      }
+  }
+}
