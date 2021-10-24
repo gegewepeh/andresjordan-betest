@@ -1,6 +1,6 @@
 import app from './app'
 import { connectToDatabaseAtlas, connectToDatabaseLocal } from './services/database.service'
-const PORT: number = Number(process.env.APP_PORT) || 4000
+const PORT: number = Number(process.env.PORT) || 4000
 
 if (process.env.NODE_ENV === 'production') {
   connectToDatabaseAtlas()
