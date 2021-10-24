@@ -21,7 +21,7 @@ services:
     container_name: ms-andresjordan-betest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_compose
       target: node-ts-base
     depends_on:
       - mongodb
@@ -35,7 +35,7 @@ services:
       - redis
     env_file: .env
     environment: 
-      - NODE_ENV=production
+      - NODE_ENV=development
       - REDIS_URL=redis://redis:6379/0
       - DB_LOCAL_CONN_STRING=mongodb://mongodb:27017/db_andresjordan_betest
     command: ["npm", "run", "start"]

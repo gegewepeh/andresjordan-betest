@@ -7,10 +7,13 @@ interface IToken {
 }
 
 function authenticate(req: Request, res: Response, next: NextFunction) {
-  const decoded = jwt.checkToken(req.headers.access_token) as IToken
+  if (req.headers.authorization) {
+    const [bearer, access_token] = req.headers.authorization.split(' ')
+    const decoded = jwt.checkToken(access_token) as IToken
 
-  if(decoded.password === process.env.ADMIN_PASSWORD) {
-    next()
+    if(decoded.password === process.env.ADMIN_PASSWORD) {
+      next()
+    }
   }
 }
 
