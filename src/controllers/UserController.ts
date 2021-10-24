@@ -15,12 +15,19 @@ export default {
   deleteUser
 }
 
-console.log(process.env.REDIS_IP)
-const redis = new Redis({
-  port: 14471,
-  host: `${process.env.REDIS_IP}`,
-  password: `${process.env.REDIS_PASSWORD}`
-})
+let redis: any;
+if (process.env.NODE_ENV === 'production') { 
+  redis = new Redis({
+    port: 14471,
+    host: `${process.env.REDIS_IP}`,
+    password: `${process.env.REDIS_PASSWORD}`
+  })
+} else {
+  redis = new Redis({
+    port: 6379,
+    host: 'redis',
+  })
+}
 
 async function getAllUser(req: Request, res: Response, next: NextFunction) {
   try {
@@ -71,7 +78,7 @@ async function createUser(req: Request, res: Response, next: NextFunction) {
         id: await getNextId('users')
       })
 
-      await redis.set(`user:id_num:${newUser.identityNumber}`, JSON.stringify(createdUser))
+      await redis.set(`user:id_num:${newUser.identityNumber}`, JSON.stringify(createdUser), 'ex', 120)
 
       responseObject = {
         httpStatus: 201,
