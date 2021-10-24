@@ -78,7 +78,7 @@ async function createUser(req: Request, res: Response, next: NextFunction) {
         id: await getNextId('users')
       })
 
-      await redis.set(`user:id_num:${newUser.identityNumber}`, JSON.stringify(createdUser), 'ex', 120)
+      await redis.set(`user:id_num:${newUser.identityNumber}`, JSON.stringify(createdUser))
 
       responseObject = {
         httpStatus: 201,
@@ -100,7 +100,7 @@ async function createUser(req: Request, res: Response, next: NextFunction) {
   
       if (!insertedIdentityNumber?.modifiedCount) {
         responseObject = {
-          httpStatus: 201,
+          httpStatus: 400,
           payload: { data: { message: 'failed to create, found duplicate account number' }}
         }
       } else {
@@ -195,10 +195,12 @@ async function getByIdentityNumber(req: Request, res: Response, next: NextFuncti
 
 async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
+    let responseObject: IResponseObject
     const targetId = +req.params.identityNumber
     const updateUserInput = req.body as IUser
-    await redis.del('users:all')
 
+    // delete from cache
+    await redis.del('users:all')
     let cachedUser = await redis.get(`user:id_num:${targetId}`)
     if (cachedUser) {
       const cacheToBeDeleted = JSON.parse(cachedUser) 
@@ -211,9 +213,10 @@ async function updateUser(req: Request, res: Response, next: NextFunction) {
         })
       }
     }
-
     await redis.del(`user:id_num:${targetId}`)
     
+
+  //update user
     let insertedAccountNumber: number[]
     if (typeof updateUserInput.accountNumber === 'number') {
       insertedAccountNumber = [updateUserInput.accountNumber]
@@ -227,18 +230,19 @@ async function updateUser(req: Request, res: Response, next: NextFunction) {
       identityNumber: targetId
     }, { $set: updateUserInput })
 
-    let httpStatus: number
-    let message: object
-
     if (!updatedUser?.modifiedCount) {
-      httpStatus = 404
-      message = { message: `User with identity number ${targetId} does not exist` }
+      responseObject = {
+        httpStatus: 404,
+        payload: { message: `User with identity number ${targetId} does not exist` }
+      }
     } else {
-      httpStatus = 200
-      message = { message: `User with identity number ${updateUserInput.identityNumber} updated successfully` }
+      responseObject = {
+        httpStatus: 200,
+        payload: { message: `User with identity number ${updateUserInput.identityNumber} updated successfully` }
+      }
     }
   
-    res.status(httpStatus).send(message)
+    res.status(responseObject.httpStatus).send(responseObject.payload)
   } catch (err: any) {
     next(err)
   }
@@ -246,29 +250,48 @@ async function updateUser(req: Request, res: Response, next: NextFunction) {
 
 async function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
+    let responseObject: IResponseObject
     const targetId = +req.params.identityNumber
+
+    // delete from cache
     await redis.del('users:all')
+    let cachedUser = await redis.get(`user:id_num:${targetId}`)
+    if (cachedUser) {
+      const cacheToBeDeleted = JSON.parse(cachedUser) 
+      if (typeof cacheToBeDeleted.accountNumber === 'number') {
+        await redis.del(`user:acc_num:${cacheToBeDeleted.accountNumber}`)
+
+      } else if (Array.isArray(cacheToBeDeleted.accountNumber)) {
+        cacheToBeDeleted.accountNumber.forEach(async (accNumber: number) => {
+          await redis.del(`user:acc_num:${accNumber}`)
+        })
+      }
+    }
     await redis.del(`user:id_num:${targetId}`)
 
+    // delete from db
     const deletedUser = await collections.users?.deleteOne({
       identityNumber: targetId
     })
 
-    let httpStatus: number
-    let message: object
-
     if (deletedUser && deletedUser.deletedCount) {
-      httpStatus = 202
-      message = { message: `Successfully removed user with identity number ${targetId}` }
+      responseObject = {
+        httpStatus: 202,
+        payload: { message: `Successfully removed user with identity number ${targetId}` }
+      }
     } else if (!deletedUser) {
-      httpStatus = 400
-      message = { message: `Failed to remove user with identity number ${targetId}` }
+      responseObject = {
+        httpStatus: 400,
+        payload: { message: `Failed to remove user with identity number ${targetId}` }
+      }
     } else {
-      httpStatus = 404
-      message = { message: `User with identity number ${targetId} does not exist` }
+      responseObject = {
+        httpStatus: 404,
+        payload: { message: `User with identity number ${targetId} does not exist` }
+      }
     }
 
-    res.status(httpStatus).send(message)
+    res.status(responseObject.httpStatus).send(responseObject.payload)
   } catch (err: any) {
     next(err)
   }
