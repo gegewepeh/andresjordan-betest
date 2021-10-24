@@ -15,10 +15,7 @@ export default {
   deleteUser
 }
 
-const redis = new Redis({
-  port: 6379,
-  host: '127.0.0.1'
-})
+const redis = new Redis()
 
 async function getAllUser(req: Request, res: Response, next: NextFunction) {
   try {
