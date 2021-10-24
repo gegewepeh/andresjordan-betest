@@ -24,7 +24,6 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     error.errorDetails = [{ duplicateError: `${duplicateName[0]} already exist` }]
   }
 
-  console.log(err)
   res.status(error.httpStatus).json({
     path: req.originalUrl,
     method: req.method,

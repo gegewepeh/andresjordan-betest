@@ -1,6 +1,5 @@
 function validationErrorHelper (error: any) {
   let finalErrorList: object[] = []
-  console.log(error)
   // schema rule violation parser
   const schemaRulesError = error.errInfo.details.schemaRulesNotSatisfied
   schemaRulesError.forEach((schemaRule: any) => {
