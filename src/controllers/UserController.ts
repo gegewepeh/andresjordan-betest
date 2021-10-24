@@ -15,7 +15,12 @@ export default {
   deleteUser
 }
 
-const redis = new Redis()
+console.log(process.env.REDIS_IP)
+const redis = new Redis({
+  port: 14471,
+  host: `${process.env.REDIS_IP}`,
+  password: `${process.env.REDIS_PASSWORD}`
+})
 
 async function getAllUser(req: Request, res: Response, next: NextFunction) {
   try {
