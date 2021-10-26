@@ -14,7 +14,12 @@ function authenticate(req: Request, res: Response, next: NextFunction) {
     if(decoded.password === process.env.ADMIN_PASSWORD) {
       next()
     }
-  }
+  } else {
+    throw {
+      name: 'error jwt',
+      details: 'jwt token missing'
+    }
+  }  
 }
 
 export default authenticate
